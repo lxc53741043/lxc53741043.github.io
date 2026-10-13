@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>从 Collections.sort 到 TimSort：源码阅读 | 马铃薯小鬼的学习日常</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="沿调用链理解 Collections.sort、List.sort、Arrays.sort 和 TimSort。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 Collections.sort 到 TimSort：源码阅读">
+<meta property="og:url" content="https://lxc53741043.github.io/notes/java/collections-sort-timsort/index.html">
+<meta property="og:site_name" content="马铃薯小鬼的学习日常">
+<meta property="og:description" content="沿调用链理解 Collections.sort、List.sort、Arrays.sort 和 TimSort。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-06-17T07:15:00.000Z">
+<meta property="article:modified_time" content="2026-10-12T16:00:00.000Z">
+<meta property="article:author" content="李宪成">
+<meta property="article:tag" content="Collections">
+<meta property="article:tag" content="TimSort">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">马铃薯小鬼的学习日常</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">记录 Java、算法与开发实践</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories/programming/java/">Java</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/lxc53741043"><span class="fa fa-github"></span></a>
+          
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lxc53741043.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-java基础/13-collections-sort-timsort" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/notes/java/collections-sort-timsort/" class="article-date">
+  <time class="dt-published" datetime="2025-06-17T07:15:00.000Z" itemprop="datePublished">2025-06-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/programming/">编程语言</a>►<a class="article-category-link" href="/categories/programming/java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      从 Collections.sort 到 TimSort：源码阅读
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>沿调用链理解 Collections.sort、List.sort、Arrays.sort 和 TimSort。</p>
+<span id="more"></span>
+
+<h2 id="所有元素两两比较，直到排出顺序"><a href="#所有元素两两比较，直到排出顺序" class="headerlink" title="所有元素两两比较，直到排出顺序"></a>所有元素两两比较，直到排出顺序</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public int compareTo(User o) &#123;</span><br><span class="line">    if(this.age&gt; o.age)&#123; return -1;&#125;</span><br><span class="line">    if(this.age &lt; o.age)&#123; return 1;&#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写的代码触发排序"><a href="#写的代码触发排序" class="headerlink" title="写的代码触发排序"></a>写的代码触发排序</h3><p>java</p>
+<p>复制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span>&lt;User&gt; <span class="variable">list</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">list.add(<span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;Alice&quot;</span>, <span class="number">25</span>));</span><br><span class="line">list.add(<span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;Bob&quot;</span>,   <span class="number">30</span>));</span><br><span class="line">list.add(<span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;Cindy&quot;</span>, <span class="number">20</span>));</span><br><span class="line"></span><br><span class="line">Collections.sort(list);   <span class="comment">// 从这里开始</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-Collections-sort-把活交给-List-sort"><a href="#2-Collections-sort-把活交给-List-sort" class="headerlink" title="2. Collections.sort 把活交给 List.sort"></a>2. <code>Collections.sort</code> 把活交给 <code>List.sort</code></h3><p>JDK8 源码（简化）：</p>
+<p>java</p>
+<p>复制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T <span class="keyword">extends</span> <span class="title class_">Comparable</span>&lt;? <span class="built_in">super</span> T&gt;&gt;</span><br><span class="line"><span class="type">void</span> <span class="title function_">sort</span><span class="params">(List&lt;T&gt; list)</span> &#123;</span><br><span class="line">    list.sort(<span class="literal">null</span>);      <span class="comment">// null 表示用元素自身的 compareTo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="3-ArrayList-sort-把活交给-Arrays-sort"><a href="#3-ArrayList-sort-把活交给-Arrays-sort" class="headerlink" title="3. ArrayList.sort 把活交给 Arrays.sort"></a>3. <code>ArrayList.sort</code> 把活交给 <code>Arrays.sort</code></h3><p>java</p>
+<p>复制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">void</span> <span class="title function_">sort</span><span class="params">(Comparator&lt;? <span class="built_in">super</span> E&gt; c)</span> &#123;</span><br><span class="line">    Arrays.sort((E[]) elementData, <span class="number">0</span>, size, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="4-Arrays-sort-Object-a-…-进入-TimSort"><a href="#4-Arrays-sort-Object-a-…-进入-TimSort" class="headerlink" title="4. Arrays.sort(Object[] a, …) 进入 TimSort"></a>4. <code>Arrays.sort(Object[] a, …)</code> 进入 <strong>TimSort</strong></h3><p>JDK 默认对对象数组使用 <code>TimSort</code>（归并+二分插入的混合算法）。<br>核心入口：</p>
+<p>java</p>
+<p>复制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="type">void</span> <span class="title function_">sort</span><span class="params">(Object[] a, <span class="type">int</span> lo, <span class="type">int</span> hi, Comparator c)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">        c = NaturalOrder.INSTANCE;   <span class="comment">// 把“元素自己”当比较器</span></span><br><span class="line">    &#125;</span><br><span class="line">    TimSort.sort(a, lo, hi, c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="5-TimSort-sort-开始“挑元素”调用-compareTo"><a href="#5-TimSort-sort-开始“挑元素”调用-compareTo" class="headerlink" title="5. TimSort.sort 开始“挑元素”调用 compareTo"></a>5. <code>TimSort.sort</code> 开始“挑元素”调用 <code>compareTo</code></h3><p>TimSort 会把数组切成若干 <strong>run</strong>（已局部有序的段），<br>然后 <strong>归并</strong> 这些 run。在归并或插入过程中，只要需要知道“谁大谁小”，<br>就通过 <code>Comparator</code> 去调 <strong>你写的 <code>compareTo</code></strong>。</p>
+<p>简化伪代码（只保留“挑两个对象”的关键点）：</p>
+<p>java</p>
+<p>复制</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码：TimSort 内部归并时</span></span><br><span class="line"><span class="keyword">while</span> (i &lt;= mid &amp;&amp; j &lt;= hi) &#123;</span><br><span class="line">    <span class="comment">// 取出两个元素</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">left</span>  <span class="operator">=</span> a[i];   <span class="comment">// 当前对象 this</span></span><br><span class="line">    <span class="type">User</span> <span class="variable">right</span> <span class="operator">=</span> a[j];   <span class="comment">// 参数对象 o</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调你的 compareTo</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">cmp</span> <span class="operator">=</span> left.compareTo(right);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (cmp &lt;= <span class="number">0</span>) &#123;      <span class="comment">// 按你的逻辑，年龄大的返回 -1，于是 cmp &lt;= 0 表示 left 更大</span></span><br><span class="line">        <span class="comment">// 把 left 放进临时数组</span></span><br><span class="line">        tmp[k++] = left;</span><br><span class="line">        i++;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 把 right 放进临时数组</span></span><br><span class="line">        tmp[k++] = right;</span><br><span class="line">        j++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="6-具体一次调用栈（调试视角）"><a href="#6-具体一次调用栈（调试视角）" class="headerlink" title="6. 具体一次调用栈（调试视角）"></a>6. 具体一次调用栈（调试视角）</h3><p>表格</p>
+<p>复制</p>
+<table>
+<thead>
+<tr>
+<th align="left">栈帧</th>
+<th align="left">源码位置</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>User.compareTo</code></td>
+<td align="left"><strong>你写的类</strong></td>
+<td align="left">真正比较大小的逻辑</td>
+</tr>
+<tr>
+<td align="left"><code>TimSort.mergeLo</code></td>
+<td align="left"><code>TimSort.java:789</code></td>
+<td align="left">归并两个 run 时挑 left 和 right</td>
+</tr>
+<tr>
+<td align="left"><code>TimSort.sort</code></td>
+<td align="left"><code>TimSort.java:234</code></td>
+<td align="left">主算法</td>
+</tr>
+<tr>
+<td align="left"><code>Arrays.sort</code></td>
+<td align="left"><code>Arrays.java:1449</code></td>
+<td align="left">入口</td>
+</tr>
+<tr>
+<td align="left"><code>ArrayList.sort</code></td>
+<td align="left"><code>ArrayList.java:1466</code></td>
+<td align="left">List 实现</td>
+</tr>
+<tr>
+<td align="left"><code>Collections.sort</code></td>
+<td align="left"><code>Collections.java:175</code></td>
+<td align="left">你写的调用</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="7-把“挑人”过程可视化"><a href="#7-把“挑人”过程可视化" class="headerlink" title="7. 把“挑人”过程可视化"></a>7. 把“挑人”过程可视化</h3><p>假设 TimSort 当前需要把下面两段 <strong>run</strong> 归并：</p>
+<p>复制</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">run1: [Bob(30), Alice(25)]</span><br><span class="line">run2: [Cindy(20)]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第一次取 <code>left = Bob</code>, <code>right = Cindy</code><br><code>Bob.compareTo(Cindy)</code> → 30 vs 20 → <code>-1</code> → Bob 更大 → Bob 先输出</li>
+<li>第二次取 <code>left = Alice</code>, <code>right = Cindy</code><br><code>Alice.compareTo(Cindy)</code> → 25 vs 20 → <code>-1</code> → Alice 更大 → Alice 输出</li>
+<li>最后只剩 Cindy → 结束</li>
+</ul>
+<p>最终顺序：<code>[Bob, Alice, Cindy]</code></p>
+<hr>
+<h3 id="8-总结一句话"><a href="#8-总结一句话" class="headerlink" title="8. 总结一句话"></a>8. 总结一句话</h3><blockquote>
+<p><strong><code>TimSort</code>（或任何排序器）在算法需要比较两个元素时，</strong><br><strong>随机&#x2F;策略性地把这两个元素作为 <code>this</code> 和 <code>o</code> 传给你写的 <code>compareTo</code>，</strong><br><strong>你只需要回答“谁大谁小”，至于“先挑哪两个”完全由排序器内部决定。</strong></p>
+</blockquote>
+<hr>
+<p><a href="/notes/java/singleton-pattern/">← Java 单例设计模式</a> · <a href="/notes/java/learning-notes/">返回 Java 学习笔记总目录</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://lxc53741043.github.io/notes/java/collections-sort-timsort/" data-id="cuidBmoY-MFWaabZ1J0wgwd2j" data-title="从 Collections.sort 到 TimSort：源码阅读" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Collections/" rel="tag">Collections</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TimSort/" rel="tag">TimSort</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/java/singleton-pattern/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          Java 单例设计模式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/java/exceptions/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Java 异常处理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">编程语言</a><span class="category-list-count">14</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/java/">Java</a><span class="category-list-count">14</span></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Collections/" rel="tag">Collections</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO/" rel="tag">IO</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMM/" rel="tag">JMM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java-%E5%9F%BA%E7%A1%80/" rel="tag">Java 基础</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/List/" rel="tag">List</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lock/" rel="tag">Lock</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LockSupport/" rel="tag">LockSupport</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Map/" rel="tag">Map</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Set/" rel="tag">Set</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TimSort/" rel="tag">TimSort</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interrupt/" rel="tag">interrupt</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/try-catch/" rel="tag">try-catch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/" rel="tag">volatile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="tag">单例模式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">垃圾回收</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%80%81/" rel="tag">多态</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag">并发编程</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">序列化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" rel="tag">异常处理</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/" rel="tag">抽象类</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%A5%E5%8F%A3/" rel="tag">接口</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" rel="tag">数据类型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" rel="tag">文件操作</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%A5%E6%9C%9F/" rel="tag">日期</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag">泛型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="tag">线程同步</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/" rel="tag">线程安全</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag">继承</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8/" rel="tag">自定义异常</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="tag">运算符</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9B%86%E5%90%88/" rel="tag">集合</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag">面向对象</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Collections/" style="font-size: 10px;">Collections</a> <a href="/tags/IO/" style="font-size: 10px;">IO</a> <a href="/tags/JMM/" style="font-size: 10px;">JMM</a> <a href="/tags/JVM/" style="font-size: 10px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Java-%E5%9F%BA%E7%A1%80/" style="font-size: 20px;">Java 基础</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/LockSupport/" style="font-size: 10px;">LockSupport</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Set/" style="font-size: 10px;">Set</a> <a href="/tags/TimSort/" style="font-size: 10px;">TimSort</a> <a href="/tags/interrupt/" style="font-size: 10px;">interrupt</a> <a href="/tags/try-catch/" style="font-size: 10px;">try-catch</a> <a href="/tags/volatile/" style="font-size: 10px;">volatile</a> <a href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" style="font-size: 10px;">内存模型</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">单例模式</a> <a href="/tags/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">垃圾回收</a> <a href="/tags/%E5%A4%9A%E6%80%81/" style="font-size: 10px;">多态</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 15px;">多线程</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">学习笔记</a> <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" style="font-size: 15px;">并发编程</a> <a href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" style="font-size: 10px;">序列化</a> <a href="/tags/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" style="font-size: 10px;">异常处理</a> <a href="/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/" style="font-size: 10px;">抽象类</a> <a href="/tags/%E6%8E%A5%E5%8F%A3/" style="font-size: 10px;">接口</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" style="font-size: 10px;">数据类型</a> <a href="/tags/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" style="font-size: 10px;">文件操作</a> <a href="/tags/%E6%97%A5%E6%9C%9F/" style="font-size: 10px;">日期</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 10px;">泛型</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 10px;">源码阅读</a> <a href="/tags/%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" style="font-size: 10px;">线程同步</a> <a href="/tags/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/" style="font-size: 10px;">线程安全</a> <a href="/tags/%E7%BB%A7%E6%89%BF/" style="font-size: 10px;">继承</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8/" style="font-size: 10px;">自定义异常</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a> <a href="/tags/%E8%BF%90%E7%AE%97%E7%AC%A6/" style="font-size: 10px;">运算符</a> <a href="/tags/%E9%9B%86%E5%90%88/" style="font-size: 10px;">集合</a> <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 15px;">面向对象</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">六月 2025</a><span class="archive-list-count">14</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/notes/java/syntax/">Java 语法基础</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/oop-advanced/">Java 面向对象进阶</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/core-classes/">Java 常用类、日期与正则</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/oop-basics/">Java 面向对象基础</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/jmm-volatile/">Java 内存模型与 volatile</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 李宪成<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories/programming/java/" class="mobile-nav-link">Java</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

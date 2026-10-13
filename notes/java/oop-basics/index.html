@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Java 面向对象基础 | 马铃薯小鬼的学习日常</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从类与对象出发，整理 this、super、final、封装、构造器和继承。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 面向对象基础">
+<meta property="og:url" content="https://lxc53741043.github.io/notes/java/oop-basics/index.html">
+<meta property="og:site_name" content="马铃薯小鬼的学习日常">
+<meta property="og:description" content="从类与对象出发，整理 this、super、final、封装、构造器和继承。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lxc53741043.github.io/notes/java/oop-basics/image-20250624224053605.png">
+<meta property="og:image" content="https://lxc53741043.github.io/notes/java/oop-basics/image-20250624191921322.png">
+<meta property="og:image" content="https://lxc53741043.github.io/notes/java/oop-basics/image-20250625153901354.png">
+<meta property="og:image" content="https://lxc53741043.github.io/notes/java/oop-basics/image-20250625160358532.png">
+<meta property="article:published_time" content="2025-06-17T07:15:00.000Z">
+<meta property="article:modified_time" content="2026-10-12T16:00:00.000Z">
+<meta property="article:author" content="李宪成">
+<meta property="article:tag" content="Java 基础">
+<meta property="article:tag" content="继承">
+<meta property="article:tag" content="面向对象">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lxc53741043.github.io/notes/java/oop-basics/image-20250624224053605.png">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">马铃薯小鬼的学习日常</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">记录 Java、算法与开发实践</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories/programming/java/">Java</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/lxc53741043"><span class="fa fa-github"></span></a>
+          
+        
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lxc53741043.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-java基础/02-java-oop-basics" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/notes/java/oop-basics/" class="article-date">
+  <time class="dt-published" datetime="2025-06-17T07:15:00.000Z" itemprop="datePublished">2025-06-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/programming/">编程语言</a>►<a class="article-category-link" href="/categories/programming/java/">Java</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Java 面向对象基础
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>从类与对象出发，整理 this、super、final、封装、构造器和继承。</p>
+<span id="more"></span>
+
+<p>java 中创建对象：</p>
+<ul>
+<li>new 对象</li>
+<li>反序列化</li>
+<li>反射</li>
+<li>克隆</li>
+</ul>
+<h2 id="This-关键字"><a href="#This-关键字" class="headerlink" title="This 关键字"></a>This 关键字</h2><ol>
+<li><strong>区分同名变量</strong>：解决实例变量与局部变量或参数的命名冲突。</li>
+<li><strong>构造器调用</strong>：在构造器中调用同一类的其他构造器。</li>
+<li><strong>传递当前对象</strong>：将当前对象作为参数传递给其他方法。</li>
+<li><strong>方法链调用</strong>：通过返回 <code>this</code> 实现流畅的链式调用。</li>
+<li><strong>限制</strong>：不能在静态方法中使用。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line"></span><br><span class="line">public class Person &#123;//定义了一个Person类</span><br><span class="line">    // height属性，成员属性</span><br><span class="line">    private double height;</span><br><span class="line"></span><br><span class="line">    //成员方法，没用This关键字</span><br><span class="line">    public void setHeight(double heightHH)&#123;</span><br><span class="line">        height = heightHH;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>等于</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void setHeight(double Height)&#123;</span><br><span class="line">    this.height = Height;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This 在此中的作用相当于实例化对象，this 指代的是当前创建的对象，在如下代码中指代的是 c1。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package org.example;</span><br><span class="line"></span><br><span class="line">public class Main1 &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        C c1 = new C();</span><br><span class="line">        c1.setAge(15);     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class C&#123;</span><br><span class="line">    private  int age;</span><br><span class="line">    public void setAge(int age)&#123;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This 的类模板对象的类名是 Main1 所在的类模板对象，对象是 Class 类型，在 Class 对象去找 p 找不到，存到了 Fields 属性里。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">package org.example;</span><br><span class="line"></span><br><span class="line">public class Main1 &#123;</span><br><span class="line">    public static int p = 12;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        C c1 = new C();</span><br><span class="line">        c1.setAge(15);</span><br><span class="line">        </span><br><span class="line">        //this.p错误的</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class C&#123;</span><br><span class="line">    private  int age;</span><br><span class="line">    public void C(int age)&#123;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setAge(int age)&#123;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>构造器调用</p>
+<pre><code>public class Car{
+    private String color;
+    private int year;
+    
+	public Car(String color) {
+    this.color = color;
+    this.year = 2023; // 默认年份
+}
+
+public Car(String color, int year) {
+    this(color); // 调用单参数构造器
+    this.year = year; // 覆盖默认年份
+}
+
+public void printDetails() {
+    System.out.println(&quot;Color: &quot; + color + &quot;, Year: &quot; + year);
+}
+
+public static void main(String [] args) {
+    Car car1 = new Car(&quot;Red&quot;);
+    Car car2 = new Car(&quot;Blue&quot;, 2020);
+    car1.printDetails(); // 输出: Color: Red, Year: 2023
+    car2.printDetails(); // 输出: Color: Blue, Year: 2020
+	}
+}
+</code></pre>
+<h2 id="Super-关键字"><a href="#Super-关键字" class="headerlink" title="Super 关键字"></a>Super 关键字</h2><p>super.访问父类的成员，比如方法和属性</p>
+<p>super()；访问和调用（两种，访问和调用）父类的构造方法</p>
+<p>！！！！！</p>
+<p>当子类的构造方法中没有使用 <code>super</code> 来调用父类的构造方法时，会默认调用父类的无参构造方法</p>
+<p>！！！！！</p>
+<h2 id="final"><a href="#final" class="headerlink" title="final"></a>final</h2><p>修饰变量不可修改，修饰方法，不可被重写，修饰类，不可被继承</p>
+<h3 id="关于-final"><a href="#关于-final" class="headerlink" title="关于 final"></a>关于 final</h3><ul>
+<li><p><code>final</code> 关键字用于声明变量 <code>b</code> 为常量，表示 <code>b</code> 变量在初始化后不能被重新赋值。</p>
+</li>
+<li><p>但是，<code>final</code> 关键字只限制变量的引用不能改变，不阻止修改变量所指向的对象的属性。</p>
+</li>
+<li><p>因此，虽然 <code>b</code> 变量是 <code>final</code> 的，但 <code>b.val</code> 的值可以被修改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line"></span><br><span class="line">public class Main2 &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">    </span><br><span class="line">        final B b = new B(12);</span><br><span class="line">        b.val = 66;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class  B&#123;</span><br><span class="line">    public  int val;</span><br><span class="line">    public B(int val)&#123;</span><br><span class="line">        this.val = val;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="类和对象"><a href="#类和对象" class="headerlink" title="类和对象"></a>类和对象</h2><p>类的构成：属性和方法</p>
+<p>属性（特性、特征、名词）</p>
+<ul>
+<li>成员属性</li>
+<li>静态属性</li>
+<li>读写</li>
+<li>只读</li>
+<li>只写</li>
+</ul>
+<p>方法（行为：动词）</p>
+<ul>
+<li>实例方法：只能通过对象名进行调用</li>
+<li>静态方法：可以通过类和（不推荐）对象进行调用</li>
+<li>构造方法：<ul>
+<li>作用：创建对象并完成初始化</li>
+<li>特点： 不能有返回值、 与类同名、可以构成重载</li>
+</ul>
+</li>
+<li>抽象方法</li>
+<li>本地方法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对象的抽象化是类，类的具体化就是对象，也可以说类的实例对象。</span><br><span class="line"></span><br><span class="line">具有相同或相似性质的一组对象的抽象化就是类，类是对一类事物的描述，对象是实际存在的该类事物的个体。</span><br></pre></td></tr></table></figure>
+
+<p>​		<strong>person 类</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line">public class Person &#123;</span><br><span class="line">    public int id;</span><br><span class="line">    private double height;</span><br><span class="line">    public void sleep()&#123;</span><br><span class="line">        System.out.println(&quot;一天睡八个小时&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">package org.example;</span><br><span class="line">import com.example.Person;</span><br><span class="line"></span><br><span class="line">public class Main extends Person &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Person p = new Person();</span><br><span class="line">        //创建一个Person类的实例对象将其赋值给p</span><br><span class="line">        </span><br><span class="line">        p.id = 12;</span><br><span class="line">        p.sleep();</span><br><span class="line">        System.out.println(p.id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="深入研究内存"><a href="#深入研究内存" class="headerlink" title="深入研究内存"></a>深入研究内存</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//b1 是一个对象引用变量，它本身存储在栈内存，</span><br><span class="line">//而它所指向的对象实例new B();存储在堆内存中</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">B b1 = new B();//在创建new B之前有一个类加载过程</span><br></pre></td></tr></table></figure>
+
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">/*					     	 </span><br><span class="line">1.IO读取class文件</span><br><span class="line">2.检查文件是否损坏，规范</span><br><span class="line">3.解析加载class文件到JVM(方法区)		 																Class&lt;B&gt; bClass = B.class</span><br><span class="line">		   						 bclass.getFields();</span><br><span class="line">5. B&#123;						     bClass.getMethods();</span><br><span class="line">   属性 x</span><br><span class="line">静态属性 y</span><br><span class="line">方法 f1</span><br><span class="line">静态方法 f2</span><br><span class="line">&#125;</span><br><span class="line">根据录入类的描述信息，把这些信息都封装到Class的一个实例中</span><br><span class="line">6.Class cB = new Class();</span><br><span class="line">//设置属性</span><br><span class="line">ArrayList fieldList = new ArrayList&lt;&gt;();</span><br><span class="line">fieldList.add(x);		//Field xField = new Field(&quot;x&quot;);</span><br><span class="line">c.setField(fieldList);  			//list.add(xField);</span><br><span class="line">ArrayList list = new ArrayList&lt;();//bClass.setFields(list);</span><br><span class="line">Method mF1 = new Method();</span><br><span class="line">Method mF2 = new Method();</span><br><span class="line">list.add(mF1);</span><br><span class="line">list.add(mF2);</span><br><span class="line">c.setMethods(list);</span><br><span class="line">//设置静态属性</span><br><span class="line">ArrayList staticFieldList = new ArrayList&lt;&gt;();</span><br><span class="line">staticFieldList.add(y);</span><br><span class="line">c.setStaticField(staticFieldList);</span><br><span class="line">         */</span><br></pre></td></tr></table></figure>
+
+<p><img src="/notes/java/oop-basics/image-20250624224053605.png" alt="image-20250624224053605"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取类B中声明的所有方法</span></span><br><span class="line"><span class="type">Method</span>[] <span class="variable">methods</span> <span class="operator">=</span> cB.getDeclaredMethods();</span><br><span class="line"><span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method Name: &quot;</span> + method.getName());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span>[] <span class="variable">fields</span> <span class="operator">=</span> B.class.getDeclaredFields();</span><br><span class="line"><span class="keyword">for</span> (Field field : fields) &#123;</span><br><span class="line">  		<span class="keyword">if</span> (field.getName().equals(<span class="string">&quot;x&quot;</span>)) &#123;</span><br><span class="line">      		xField = field;</span><br><span class="line">      		<span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>+——————+<br>|     Class B      |<br>+——————+<br>| - int x          |  &lt;– Fields<br>+——————+<br>| + B()            |  &lt;– Constructor<br>| + void f(int a)  |  &lt;– Methods<br>+——————+</p>
+<h4 id="代码举例"><a href="#代码举例" class="headerlink" title="代码举例"></a>代码举例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">package org.example;</span><br><span class="line"></span><br><span class="line">public class Main&#123;</span><br><span class="line">    int a = 2;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        B b1 = new B();//在创建new B之前有一个类加载过程</span><br><span class="line">        /*</span><br><span class="line">        *Class&lt;B&gt; bClass = B.class</span><br><span class="line">        *</span><br><span class="line">        *bclass.getFields();</span><br><span class="line">        *bClass.getMethods();</span><br><span class="line">        */</span><br><span class="line">        </span><br><span class="line">        /*上述类加载过程</span><br><span class="line">        */</span><br><span class="line"></span><br><span class="line">        b1.f1();</span><br><span class="line">        </span><br><span class="line">        System.out.println(b1.x);</span><br><span class="line"></span><br><span class="line">        System.out.println(B.y);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class B&#123;</span><br><span class="line">    public int x = 10;//属于b实例化对象，在内存分配的过程中，在类模板中先占着，不分配内存，在实例化对象b之后分配内存</span><br><span class="line">    public static  int y = 20;//属于B类模板 </span><br><span class="line">    public static void f2()&#123;</span><br><span class="line">    //加了static属于B这个类模板，准确的来说是属于B.class身上的</span><br><span class="line">    </span><br><span class="line">        System.out.println(y);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//x和f1是属于实例化对象b的，y和f2是属于类模板B的,实例化对象b可以获取到类模板B的数据</span><br><span class="line">//b1.f1();打印结果是10，20</span><br><span class="line"></span><br><span class="line">// 但是类模板B获取不到实例化对象b的数据，不知道是哪一个b的，一个类模板B可以有多个实例化对象b</span><br><span class="line">//b1.f2();打印结果是20</span><br></pre></td></tr></table></figure>
+
+<p><img src="/notes/java/oop-basics/image-20250624191921322.png" alt="image-20250624191921322"></p>
+<p>f1 和 x 是属于实例化对象的，y 和 f2（static）是属于类模板对象的（类模板）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span><span class="operator">=</span><span class="keyword">new</span> <span class="title class_">User</span>();</span><br></pre></td></tr></table></figure>
+
+<p>以上的创建对象的代码执行了以下 5 个：</p>
+<p>1：在栈中开辟内存空间</p>
+<p>2：在堆中开辟内存空间</p>
+<p>3：递归调用父类的构造方法创建所有父类</p>
+<p>4：调用本类的构造方法完成对象的创建</p>
+<p>5：将堆中对象的地址赋值给栈。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">    for(int i=0;i&lt;1000;i++)&#123;</span><br><span class="line">        User user=new User();//不要在循环中创建对象</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    User u=null;</span><br><span class="line">    for(int i=0;i&lt;1000;i++)&#123;</span><br><span class="line">         u=new User();//应该在循环外面定义，循坏里面赋值OK</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h2><p>​		将对象的细节实现隐藏起来，通过一些公共的方法暴露该对象的功能。</p>
+<p>​		通过将成员变量设置为私有，并提供公共的 Getter 和 Setter 方法，可以隐藏类的内部实现细节，只暴露必要的接口给外部使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line"></span><br><span class="line">public class Person &#123;</span><br><span class="line">    // 私有成员变量</span><br><span class="line">    private int id;</span><br><span class="line">    private String name;</span><br><span class="line">    private double height;</span><br><span class="line"></span><br><span class="line">    // 构造方法</span><br><span class="line">    public Person(int id, String name, double height) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.height = height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Getter和Setter方法</span><br><span class="line">    public int getId() &#123;</span><br><span class="line">        return id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setId(int id) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public double getHeight() &#123;</span><br><span class="line">        return height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setHeight(double height) &#123;</span><br><span class="line">        this.height = height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 成员方法</span><br><span class="line">    public void sleep() &#123;</span><br><span class="line">        System.out.println(name + &quot; 一天睡八个小时&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void eat() &#123;</span><br><span class="line">        System.out.println(name + &quot; 吃饭&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void introduce() &#123;</span><br><span class="line">        System.out.println(&quot;我是 &quot; + name + &quot;，我的身高是 &quot; + height + &quot; 米。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="构造器"><a href="#构造器" class="headerlink" title="构造器"></a>构造器</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>​		一个类可以继承另一个类的属性和方法</p>
+<p>​		子类可以继承父类的非私有化的全部的 Filed 成员变量和方法</p>
+<p>​		创建一个子类的构造方法时，通常需要调用父类的构造方法来初始化继承的成员变量。这是通过 <code>super</code> 关键字实现的</p>
+<ul>
+<li><p>super&#96;关键字用于引用父类的成员（包括成员变量和方法）。</p>
+</li>
+<li><p>在构造方法中，<code>super</code> 用于调用父类的构造方法</p>
+<p>Student 类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line"></span><br><span class="line">public class Student extends Person&#123;</span><br><span class="line">    public int stuCode;</span><br><span class="line">    //构造方法，继承父类的</span><br><span class="line">    public Student(int id, String name, double height) &#123;</span><br><span class="line">        super(id, name, height);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //对新的成员变量设置Getter和Setter方法</span><br><span class="line">    public void setStuCode(int stuCode)&#123;</span><br><span class="line">        this.stuCode = stuCode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int getStuCode()&#123;</span><br><span class="line">        return stuCode;</span><br><span class="line">    &#125;</span><br><span class="line">    /*</span><br><span class="line">    父类没有的函数，子类特有的</span><br><span class="line">     */</span><br><span class="line">    public void Study()&#123;</span><br><span class="line">        System.out.println(&quot;我是学生，我正在上课学习&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    /*</span><br><span class="line">    以下皆是重写方法</span><br><span class="line">    */</span><br><span class="line">    @Override</span><br><span class="line">    public void eat()&#123;</span><br><span class="line">        System.out.println(&quot;我是学生，我吃饭吃得多&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void introduce() &#123;</span><br><span class="line">        System.out.println(&quot;我是 &quot; + getName() + &quot;，我的身高是 &quot; + getHeight() + &quot; 米，我是 &quot;  + &quot; 专业的学生&quot; );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>Person 类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">package com.example;</span><br><span class="line"></span><br><span class="line">public class Person &#123;</span><br><span class="line">    // 私有成员变量</span><br><span class="line">    private int id;</span><br><span class="line">    private String name;</span><br><span class="line">    private double height;</span><br><span class="line"></span><br><span class="line">     //构造方法</span><br><span class="line">    public Person(int id, String name, double height) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.height = height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Getter和Setter方法</span><br><span class="line">    public int getId() &#123;</span><br><span class="line">        return id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setId(int id) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public double getHeight() &#123;</span><br><span class="line">        return height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void setHeight(double height) &#123;</span><br><span class="line">        this.height = height;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 成员方法</span><br><span class="line">    public void sleep() &#123;</span><br><span class="line">        System.out.println(name + &quot; 一天睡八个小时&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void eat() &#123;</span><br><span class="line">        System.out.println(name + &quot; 吃饭&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void introduce() &#123;</span><br><span class="line">        System.out.println(&quot;我是 &quot; + name + &quot;，我的身高是 &quot; + height + &quot; 米。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基本数据类型之间没有继承关系，强转是截断。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class Main1 &#123;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">        new D();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class C&#123;</span><br><span class="line">    public C()&#123;</span><br><span class="line">        System.out.println(&quot;执行CCC-CC&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class D extends C&#123;</span><br><span class="line">    public D()&#123;</span><br><span class="line">        System.out.println(&quot;DDDDDD&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<p><img src="/notes/java/oop-basics/image-20250625153901354.png" alt="image-20250625153901354"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class C&#123;</span><br><span class="line">    public C()&#123;</span><br><span class="line">        System.out.println(&quot;执行CCC-CC&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public C(String str)&#123;</span><br><span class="line">        System.out.println(&quot;strstrstrstrstr&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class D extends C&#123;</span><br><span class="line">    public D()&#123;</span><br><span class="line">        //super();默认的</span><br><span class="line">        super(&quot;s&quot;);</span><br><span class="line">        System.out.println(&quot;DDDDDD&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果: <img src="/notes/java/oop-basics/image-20250625160358532.png" alt="image-20250625160358532"></p>
+<hr>
+<p><a href="/notes/java/syntax/">← Java 语法基础</a> · <a href="/notes/java/learning-notes/">返回 Java 学习笔记总目录</a> · <a href="/notes/java/oop-advanced/">Java 面向对象进阶 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://lxc53741043.github.io/notes/java/oop-basics/" data-id="cuidy4zUyOjTgrkXBQ--4p-aI" data-title="Java 面向对象基础" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java-%E5%9F%BA%E7%A1%80/" rel="tag">Java 基础</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag">继承</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag">面向对象</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/java/core-classes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          Java 常用类、日期与正则
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/java/jmm-volatile/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Java 内存模型与 volatile</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">编程语言</a><span class="category-list-count">14</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/java/">Java</a><span class="category-list-count">14</span></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Collections/" rel="tag">Collections</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IO/" rel="tag">IO</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMM/" rel="tag">JMM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java-%E5%9F%BA%E7%A1%80/" rel="tag">Java 基础</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/List/" rel="tag">List</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lock/" rel="tag">Lock</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LockSupport/" rel="tag">LockSupport</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Map/" rel="tag">Map</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Set/" rel="tag">Set</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TimSort/" rel="tag">TimSort</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interrupt/" rel="tag">interrupt</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/try-catch/" rel="tag">try-catch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/" rel="tag">volatile</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" rel="tag">内存模型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" rel="tag">单例模式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="tag">垃圾回收</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%80%81/" rel="tag">多态</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag">并发编程</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">序列化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" rel="tag">异常处理</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/" rel="tag">抽象类</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%A5%E5%8F%A3/" rel="tag">接口</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" rel="tag">数据类型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" rel="tag">文件操作</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%A5%E6%9C%9F/" rel="tag">日期</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B3%9B%E5%9E%8B/" rel="tag">泛型</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" rel="tag">线程同步</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/" rel="tag">线程安全</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%A7%E6%89%BF/" rel="tag">继承</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8/" rel="tag">自定义异常</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%AE%97%E7%AC%A6/" rel="tag">运算符</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9B%86%E5%90%88/" rel="tag">集合</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" rel="tag">面向对象</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Collections/" style="font-size: 10px;">Collections</a> <a href="/tags/IO/" style="font-size: 10px;">IO</a> <a href="/tags/JMM/" style="font-size: 10px;">JMM</a> <a href="/tags/JVM/" style="font-size: 10px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Java-%E5%9F%BA%E7%A1%80/" style="font-size: 20px;">Java 基础</a> <a href="/tags/List/" style="font-size: 10px;">List</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/LockSupport/" style="font-size: 10px;">LockSupport</a> <a href="/tags/Map/" style="font-size: 10px;">Map</a> <a href="/tags/Set/" style="font-size: 10px;">Set</a> <a href="/tags/TimSort/" style="font-size: 10px;">TimSort</a> <a href="/tags/interrupt/" style="font-size: 10px;">interrupt</a> <a href="/tags/try-catch/" style="font-size: 10px;">try-catch</a> <a href="/tags/volatile/" style="font-size: 10px;">volatile</a> <a href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" style="font-size: 10px;">内存模型</a> <a href="/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">单例模式</a> <a href="/tags/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" style="font-size: 10px;">垃圾回收</a> <a href="/tags/%E5%A4%9A%E6%80%81/" style="font-size: 10px;">多态</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 15px;">多线程</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 10px;">学习笔记</a> <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" style="font-size: 15px;">并发编程</a> <a href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" style="font-size: 10px;">序列化</a> <a href="/tags/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" style="font-size: 10px;">异常处理</a> <a href="/tags/%E6%8A%BD%E8%B1%A1%E7%B1%BB/" style="font-size: 10px;">抽象类</a> <a href="/tags/%E6%8E%A5%E5%8F%A3/" style="font-size: 10px;">接口</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" style="font-size: 10px;">数据类型</a> <a href="/tags/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" style="font-size: 10px;">文件操作</a> <a href="/tags/%E6%97%A5%E6%9C%9F/" style="font-size: 10px;">日期</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 10px;">泛型</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 10px;">源码阅读</a> <a href="/tags/%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/" style="font-size: 10px;">线程同步</a> <a href="/tags/%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8/" style="font-size: 10px;">线程安全</a> <a href="/tags/%E7%BB%A7%E6%89%BF/" style="font-size: 10px;">继承</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8/" style="font-size: 10px;">自定义异常</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">设计模式</a> <a href="/tags/%E8%BF%90%E7%AE%97%E7%AC%A6/" style="font-size: 10px;">运算符</a> <a href="/tags/%E9%9B%86%E5%90%88/" style="font-size: 10px;">集合</a> <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" style="font-size: 15px;">面向对象</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">六月 2025</a><span class="archive-list-count">14</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/notes/java/syntax/">Java 语法基础</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/oop-advanced/">Java 面向对象进阶</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/core-classes/">Java 常用类、日期与正则</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/oop-basics/">Java 面向对象基础</a>
+          </li>
+        
+          <li>
+            <a href="/notes/java/jmm-volatile/">Java 内存模型与 volatile</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 李宪成<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/categories/programming/java/" class="mobile-nav-link">Java</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
